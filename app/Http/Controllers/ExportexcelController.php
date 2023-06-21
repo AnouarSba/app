@@ -110,6 +110,6 @@ class ExportexcelController extends Controller
                 'Count' => $data_item->cmpt
             );
         }
-        $this->ExportExcel($data_array,$data_array2,$data_array3);  return 25; 
+        $this->ExportExcel($data_array,$data_array2,$data_array3); 
     }
 }
