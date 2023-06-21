@@ -14,8 +14,7 @@ use App\Models\Vent;
 class ExportexcelController extends Controller
 {
     public function ExportExcel($customer_data, $customer_data2, $customer_data3){
-        ini_set('max_execution_time', 0);
-        ini_set('memory_limit', '4000M');
+        
         try {
             $spreadSheet = new Spreadsheet();
             $spreadSheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
@@ -35,24 +34,26 @@ class ExportexcelController extends Controller
         $spreadSheet->setActiveSheetIndex(2);
         $spreadSheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
         $spreadSheet->getActiveSheet()->fromArray($customer_data3);
-        
+       
         $spreadSheet->getActiveSheet()->setTitle('Controlleur');
-            $Excel_writer = new Xls($spreadSheet);
+             
+             $Excel_writer = new Xls($spreadSheet);
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename="Customer_ExportedData.xls"');
             header('Cache-Control: max-age=0');
-            ob_end_clean();
+            //ob_end_clean();
+           
             $Excel_writer->save('php://output');
             exit();
         } catch (Exception $e) {
-            return;
+            return 7;
         }
     }
     /**
      *This function loads the customer data from the database then converts it
      * into an Array that will be exported to Excel
      */
-    function exportData(Request $request){
+    public function exportData(Request $request){
         $req = $request->validate([
             'start_date' => 'required|date',
             'end_date' => 'required|date',
@@ -66,7 +67,9 @@ class ExportexcelController extends Controller
         $data_array [] = array("Num","Name","Flexy","Phone","E-mail");
         $i = 0;
         foreach($data as $data_item)
-        { $i++;
+        { 
+        if($data_item->client)
+            $i++;
             $data_array[] = array(
                 'Num' =>$i,
                 'Name' => $data_item->client['name'],
@@ -90,6 +93,7 @@ class ExportexcelController extends Controller
                 'Flexy' => $data_item->flexy
             );
         }
+        
         $data = Vent::query()
         ->join('controls', 'controls.id', '=', 'vents.c_id')->where('c_type','App\Models\Control')
         ->whereBetween('vents.created_at', [$from, $to])
@@ -98,7 +102,7 @@ class ExportexcelController extends Controller
         ->get();
         $data_array3 [] = array("Num","Name","Count");
         $i = 0;
-        foreach($data as $data_item)
+      foreach($data as $data_item)
         { $i++;
             $data_array3[] = array(
                 'Num' =>$i,
@@ -106,6 +110,6 @@ class ExportexcelController extends Controller
                 'Count' => $data_item->cmpt
             );
         }
-        $this->ExportExcel($data_array,$data_array2,$data_array3);
+        $this->ExportExcel($data_array,$data_array2,$data_array3);  return 25; 
     }
 }
