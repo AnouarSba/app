@@ -69,6 +69,7 @@ class ExportexcelController extends Controller
         foreach($data as $data_item)
         { 
         if($data_item->client)
+        {
             $i++;
             $data_array[] = array(
                 'Num' =>$i,
@@ -77,6 +78,7 @@ class ExportexcelController extends Controller
                 'Phone' => $data_item->client['phone'],
                 'E-mail' => $data_item->client['email']
             );
+        }
         }
         $data = Flixy::query()
         ->join('kabids', 'kabids.id', '=', 'flixies.flixy_id')->where('flixy_type','App\Models\Kabid')->whereBetween('flixies.created_at', [$from, $to])->select("flixy_id", "name", DB::raw("sum(amount) as flexy"))
